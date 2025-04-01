@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Optional;
 
 public interface SetRepository extends JpaRepository<Set, Long> {
-    List<Set> findByGameType(String gameType);
     Optional<Set> findBySetCode(String setCode);
+
+    // Nouvelle méthode
+    List<Set> findByGameType(String gameType);
 }

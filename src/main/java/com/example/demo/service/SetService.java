@@ -13,11 +13,13 @@ public class SetService {
     @Autowired
     private SetRepository setRepository;
 
+    public List<Set> getSetsByGameType(String gameType) {
+        return setRepository.findByGameType(gameType); // Ligne 21
+    }
+
     public Set saveSet(Set set) {
         return setRepository.save(set);
     }
 
-    public List<Set> getSetsByGameType(String gameType) {
-        return setRepository.findByGameType(gameType);
-    }
+    // Autres méthodes si nécessaires
 }
