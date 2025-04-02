@@ -8,19 +8,18 @@ import lombok.EqualsAndHashCode;
 @Data
 @Entity
 @Table(name = "pokemon_cards")
+@PrimaryKeyJoinColumn(name = "id")
 public class PokemonCard extends Card {
 
-    @Column(nullable = false)
-    private String energyType; // Type d'énergie (ex. "Électrique", "Feu")
+    @Column(name = "energy_type")
+    private String energyType;
 
-    @Column(nullable = false)
-    private int hp; // Points de vie
+    @Column(name = "hp")
+    private Integer hp;
 
-    @Column
-    private String weakness; // Faiblesse (ex. "Eau")
+    @Column(name = "weakness")
+    private String weakness;
 
-    // Constructeur par défaut
-    public PokemonCard() {}
     // Getters et Setters
 
 }

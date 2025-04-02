@@ -1,6 +1,5 @@
 package com.example.demo.entity;
 
-import com.example.demo.Language;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -11,7 +10,6 @@ public class SerieTranslation {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false, updatable = false)
     private Long id;
 
     @ManyToOne
@@ -25,16 +23,12 @@ public class SerieTranslation {
     @Column(nullable = false)
     private String name;
 
-    // Constructeurs
-    public SerieTranslation() {
-    }
+    // Getters et setters
 
+    public SerieTranslation() {}
     public SerieTranslation(Serie serie, Language language, String name) {
         this.serie = serie;
         this.language = language;
         this.name = name;
     }
-
-    // Getters et Setters
-
 }

@@ -9,31 +9,27 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
 @Entity
 @Table(name = "cards")
 @Inheritance(strategy = InheritanceType.JOINED)
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
-@JsonSubTypes({
-        @JsonSubTypes.Type(value = PokemonCard.class, name = "PokemonCard"),
-        @JsonSubTypes.Type(value = YuGiOhCard.class, name = "YuGiOhCard")
-})
 public abstract class Card {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(name = "card_number", nullable = false)
     private String cardNumber;
 
-    @Column(nullable = false)
-    private String rarity;
+    @Column(name = "image_path")
+    private String imagePath;
 
-    @OneToMany(mappedBy = "card", cascade = CascadeType.ALL)
-    private List<CardTranslation> translations;
+    @Column(name = "rarity")
+    private String rarity;
 
     @ManyToMany
     @JoinTable(
@@ -41,16 +37,13 @@ public abstract class Card {
             joinColumns = @JoinColumn(name = "card_id"),
             inverseJoinColumns = @JoinColumn(name = "set_id")
     )
-    private List<Set> sets;
+    private List<Set> sets = new ArrayList<>();
 
-    @OneToMany(mappedBy = "card", cascade = CascadeType.ALL)
-    private List<CardSet> cardSets;
+    @OneToMany(mappedBy = "card", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CardTranslation> translations = new ArrayList<>();
 
-    @Column
-    private String imagePath;
-    // Constructeur par défaut requis par JPA
-    public Card() {}
+    // Getters et setters
 
-    // Getters et Setters
+    public void addTranslation(CardTranslation translation) { this.translations.add(translation); }
 
 }

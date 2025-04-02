@@ -1,6 +1,5 @@
 package com.example.demo.entity;
 
-import com.example.demo.Language;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -24,14 +23,12 @@ public class SetTranslation {
     @Column(nullable = false)
     private String name;
 
-    // Constructeur par défaut requis par JPA
-    public SetTranslation() {}
+    // Getters et setters
 
-    // Constructeur avec paramètres pour l’initialisation
+    public SetTranslation() {}
     public SetTranslation(Set set, Language language, String name) {
         this.set = set;
         this.language = language;
         this.name = name;
     }
-    // Getters et Setters
 }

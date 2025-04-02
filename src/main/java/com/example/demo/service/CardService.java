@@ -1,6 +1,6 @@
 package com.example.demo.service;
 
-import com.example.demo.Language;
+import com.example.demo.entity.Language;
 import com.example.demo.entity.Card;
 import com.example.demo.entity.PokemonCard;
 import com.example.demo.entity.YuGiOhCard;

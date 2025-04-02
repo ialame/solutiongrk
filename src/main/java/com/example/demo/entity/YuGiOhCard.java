@@ -4,25 +4,25 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+@Entity
 @EqualsAndHashCode(callSuper = true)
 @Data
-@Entity
 @Table(name = "yugioh_cards")
+@PrimaryKeyJoinColumn(name = "id")
 public class YuGiOhCard extends Card {
 
-    @Column(nullable = false)
-    private int level; // Niveau (ex. 4 pour "Blue-Eyes White Dragon")
+    @Column(name = "attack")
+    private Integer attack;
 
-    @Column(nullable = false)
-    private int attack; // Points d'attaque
+    @Column(name = "defense")
+    private Integer defense;
 
-    @Column(nullable = false)
-    private int defense; // Points de défense
+    @Column(name = "level")
+    private Integer level;
 
-    @Column
-    private String cardType; // Type de carte (ex. "Monstre", "Magie", "Piège")
-    // Constructeur par défaut
-    public YuGiOhCard() {}
-    // Getters et Setters
+    @Column(name = "card_type")
+    private String cardType;
+
+    // Getters et setters
 
 }

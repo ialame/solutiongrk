@@ -1,6 +1,5 @@
 package com.example.demo.entity;
 
-import com.example.demo.Language;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -26,16 +25,13 @@ public class CardTranslation {
 
     @Column
     private String description;
+    // Getters et Setters
 
-    // Constructeur par défaut requis par JPA
     public CardTranslation() {}
-
-    // Constructeur avec paramètres pour l’initialisation
     public CardTranslation(Card card, Language language, String name, String description) {
         this.card = card;
         this.language = language;
         this.name = name;
         this.description = description;
     }
-    // Getters et Setters
 }

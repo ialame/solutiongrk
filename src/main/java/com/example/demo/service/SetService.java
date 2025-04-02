@@ -13,13 +13,13 @@ public class SetService {
     @Autowired
     private SetRepository setRepository;
 
-    public List<Set> getSetsByGameType(String gameType) {
-        return setRepository.findByGameType(gameType); // Ligne 21
-    }
-
     public Set saveSet(Set set) {
         return setRepository.save(set);
     }
 
-    // Autres méthodes si nécessaires
+    // Nouvelle méthode
+    public Set getSetWithCards(Long setId) {
+        return setRepository.findById(setId)
+                .orElseThrow(() -> new RuntimeException("Set not found with id: " + setId));
+    }
 }

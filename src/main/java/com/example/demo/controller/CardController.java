@@ -1,6 +1,6 @@
 package com.example.demo.controller;
 
-import com.example.demo.Language;
+import com.example.demo.entity.Language;
 import com.example.demo.dto.CardDTO;
 import com.example.demo.dto.PokemonCardDTO;
 import com.example.demo.dto.YuGiOhCardDTO;
