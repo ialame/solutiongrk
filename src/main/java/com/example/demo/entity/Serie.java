@@ -8,7 +8,7 @@ import java.util.List;
 
 @Data
 @Entity
-@Table(name = "series")
+@Table(name = "serie")
 public class Serie {
 
     @Id

@@ -7,7 +7,7 @@ import lombok.EqualsAndHashCode;
 @Entity
 @EqualsAndHashCode(callSuper = true)
 @Data
-@Table(name = "yugioh_cards")
+@Table(name = "yugioh_card")
 @PrimaryKeyJoinColumn(name = "id")
 public class YuGiOhCard extends Card {
 

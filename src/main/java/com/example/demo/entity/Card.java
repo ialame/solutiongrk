@@ -1,20 +1,15 @@
 package com.example.demo.entity;
 
-import com.example.demo.entity.CardTranslation;
-import com.example.demo.entity.PokemonCard;
-import com.example.demo.entity.Set;
-import com.example.demo.entity.YuGiOhCard;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import jakarta.persistence.*;
 import lombok.Data;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 
 @Data
 @Entity
-@Table(name = "cards")
+@Table(name = "card")
 @Inheritance(strategy = InheritanceType.JOINED)
 public abstract class Card {
 
@@ -22,28 +17,43 @@ public abstract class Card {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "card_number", nullable = false)
+    @Column(nullable = false)
     private String cardNumber;
 
-    @Column(name = "image_path")
-    private String imagePath;
+    @Column(nullable = false)
+    private String gameType;
 
-    @Column(name = "rarity")
+    @Column(nullable = false)
     private String rarity;
 
-    @ManyToMany
+    @Column
+    private String imagePath;
+
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(
-            name = "card_set",
+            name = "card_set_card",
             joinColumns = @JoinColumn(name = "card_id"),
-            inverseJoinColumns = @JoinColumn(name = "set_id")
+            inverseJoinColumns = @JoinColumn(name = "card_set_id")
     )
-    private List<Set> sets = new ArrayList<>();
+    private Set<CardSet> sets = new HashSet<>();
 
-    @OneToMany(mappedBy = "card", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<CardTranslation> translations = new ArrayList<>();
-
-    // Getters et setters
+    @OneToMany(mappedBy = "card", cascade = CascadeType.ALL)
+    private Set<CardTranslation> translations = new HashSet<>();
 
     public void addTranslation(CardTranslation translation) { this.translations.add(translation); }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Card)) return false;
+        Card card = (Card) o;
+        return Objects.equals(id, card.id) &&
+                Objects.equals(cardNumber, card.cardNumber) &&
+                Objects.equals(gameType, card.gameType);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, cardNumber, gameType);
+    }
 }

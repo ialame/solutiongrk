@@ -8,12 +8,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 
 @Service
-public class PokemonDataService {
+public class PokemonDataService implements GameDataService {
 
     private static final Logger logger = LoggerFactory.getLogger(PokemonDataService.class);
 
@@ -26,7 +25,8 @@ public class PokemonDataService {
     @Autowired
     private ImageDownloader imageDownloader;
 
-    public void initializePokemonData() throws IOException {
+    @Override
+    public void initializeData() throws IOException {
         logger.info("Initializing Pokémon data...");
         JsonNode setsNode = apiClient.fetchSets();
         if (setsNode != null && setsNode.has("data")) {
@@ -42,25 +42,18 @@ public class PokemonDataService {
         logger.info("Pokémon data initialization completed.");
     }
 
-    @Transactional
-    public void testPersistence() {
-        logger.info("Testing persistence...");
-        Serie testSerie = new Serie();
-        testSerie.setGameType("Pokemon");
-        testSerie.addTranslation(new SerieTranslation(testSerie, Language.US, "Test Serie"));
-        persistenceService.saveSerie("Test Serie", "Pokemon"); // Utilise le service factorisé
-        logger.info("Test Serie sauvegardée.");
-    }
-
     private void processSet(JsonNode setNode) throws IOException {
         String setId = setNode.get("id").asText();
         String setCode = setNode.get("id").asText();
         String serieName = setNode.get("series").asText();
         String setName = setNode.get("name").asText();
         String gameType = "Pokemon";
+        String ptcgoCode = setNode.has("ptcgoCode") ? setNode.get("ptcgoCode").asText() : null;
+        String releaseDate = setNode.has("releaseDate") ? setNode.get("releaseDate").asText() : null;
+        Integer totalCards = setNode.has("total") ? setNode.get("total").asInt() : null;
 
         Serie serie = persistenceService.saveSerie(serieName, gameType);
-        Set set = persistenceService.saveSet(setCode, setName, serie);
+        CardSet set = persistenceService.saveSet(setCode, setName, serie, ptcgoCode, releaseDate, totalCards);
 
         int page = 1;
         int pageSize = 50;
@@ -73,7 +66,7 @@ public class PokemonDataService {
             logger.info("Nombre de cartes récupérées pour le set {} à la page {} : {}", setId, page, cardsNode.get("data").size());
             for (JsonNode cardNode : cardsNode.get("data")) {
                 try {
-                    processCard(cardNode, set, gameType);
+                    processCard(cardNode, set);
                 } catch (Exception e) {
                     logger.error("Erreur lors du traitement de la carte {} dans le set {} : {}", cardNode.get("number").asText(), setId, e.getMessage(), e);
                 }
@@ -82,34 +75,25 @@ public class PokemonDataService {
         }
     }
 
-    private void processCard(JsonNode cardNode, Set set, String gameType) throws IOException {
-        String cardId = cardNode.get("id").asText();
-        String cardNumber = cardNode.get("number").asText();
-        String imageUrl = cardNode.get("images").get("large").asText();
-        String rarity = cardNode.get("rarity") != null ? cardNode.get("rarity").asText() : "Unknown";
-
-        PokemonCard newCard = new PokemonCard();
-        newCard.setCardNumber(cardNumber);
+    private void processCard(JsonNode cardNode, CardSet set) throws IOException {
+        logger.debug("Traitement de la carte : {}", cardNode.get("number").asText());
+        PokemonCard card = new PokemonCard();
+        card.setCardNumber(cardNode.get("number").asText());
+        card.setRarity(cardNode.get("rarity") != null ? cardNode.get("rarity").asText() : "Unknown");
         try {
-            String imagePath = imageDownloader.downloadImage(imageUrl, gameType, cardId);
-            newCard.setImagePath(imagePath);
+            String imagePath = imageDownloader.downloadImage(cardNode.get("images").get("large").asText(), "Pokemon", cardNode.get("id").asText());
+            card.setImagePath(imagePath);
         } catch (IOException e) {
-            logger.error("Erreur lors du téléchargement de l'image pour la carte {} : {}", cardId, e.getMessage());
-            newCard.setImagePath(null);
+            logger.error("Erreur lors du téléchargement de l'image pour la carte {} : {}", cardNode.get("id").asText(), e.getMessage());
+            card.setImagePath(null);
         }
-        newCard.setRarity(rarity);
-        if (cardNode.has("types")) {
-            newCard.setEnergyType(cardNode.get("types").get(0).asText());
-        }
-        if (cardNode.has("hp")) {
-            newCard.setHp(cardNode.get("hp").asInt());
-        }
-        if (cardNode.has("weaknesses")) {
-            newCard.setWeakness(cardNode.get("weaknesses").get(0).get("type").asText());
-        }
-        String cardName = cardNode.get("name").asText();
-        newCard.addTranslation(new CardTranslation(newCard, Language.US, cardName, null));
+        if (cardNode.has("types")) card.setEnergyType(cardNode.get("types").get(0).asText());
+        if (cardNode.has("hp")) card.setHp(cardNode.get("hp").asInt());
+        if (cardNode.has("weaknesses")) card.setWeakness(cardNode.get("weaknesses").get(0).get("type").asText());
+        card.addTranslation(new CardTranslation(card, Language.US, cardNode.get("name").asText(), null));
 
-        persistenceService.saveCard(newCard, set);
+        logger.debug("Appel à saveCard pour la carte : {}", card.getCardNumber());
+        persistenceService.saveCard(card, set);
+        logger.debug("Carte {} traitée avec succès", card.getCardNumber());
     }
 }

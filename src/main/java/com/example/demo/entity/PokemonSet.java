@@ -6,11 +6,9 @@ import lombok.EqualsAndHashCode;
 
 
 @Data
-@EqualsAndHashCode(callSuper = true) // Ajouté pour inclure Set
 @Entity
-@Table(name = "pokemon_sets")
-@PrimaryKeyJoinColumn(name = "id")
-public class PokemonSet extends Set {
+@Table(name = "pokemon_set")
+public class PokemonSet extends CardSet {
 
     @Column(name = "release_date")
     private String releaseDate; // Format : "YYYY-MM-DD"
@@ -24,6 +22,18 @@ public class PokemonSet extends Set {
     @Column(name = "ptcgo_code")
     private String ptcgoCode; // Code pour Pokémon TCG Online
 
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof PokemonSet)) return false;
+        return super.equals(o);
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode(); // Réutilise le hashCode de CardSet
+    }
     // Getters et setters
 
 }

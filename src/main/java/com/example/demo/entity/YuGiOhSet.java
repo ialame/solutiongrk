@@ -8,9 +8,8 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @Entity
-@Table(name = "yugioh_sets")
-@PrimaryKeyJoinColumn(name = "id")
-public class YuGiOhSet extends Set {
+@Table(name = "yugioh_set")
+public class YuGiOhSet extends CardSet {
 
     @Column(name = "release_date")
     private String releaseDate; // Format : "YYYY-MM-DD"

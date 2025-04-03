@@ -18,7 +18,7 @@ public class DataInitializer implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         logger.info("Starting data initialization...");
-        pokemonDataService.testPersistence(); // Test de persistance
-        pokemonDataService.initializePokemonData(); // Initialisation complète
+        //pokemonDataService.testPersistence(); // Test de persistance
+        pokemonDataService.initializeData(); // Initialisation complète
     }
 }
