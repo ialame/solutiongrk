@@ -91,7 +91,22 @@ public class PokemonDataService implements GameDataService {
         if (cardNode.has("types")) card.setEnergyType(cardNode.get("types").get(0).asText());
         if (cardNode.has("hp")) card.setHp(cardNode.get("hp").asInt());
         if (cardNode.has("weaknesses")) card.setWeakness(cardNode.get("weaknesses").get(0).get("type").asText());
-        card.addTranslation(new CardTranslation(card, Language.US, cardNode.get("name").asText(), null));
+
+        // Gestion de la description
+        String description = null;
+        if (cardNode.has("flavorText")) {
+            description = cardNode.get("flavorText").asText();
+        } else if (cardNode.has("attacks") && cardNode.get("attacks").size() > 0) {
+            StringBuilder attackText = new StringBuilder();
+            for (JsonNode attack : cardNode.get("attacks")) {
+                if (attack.has("text")) {
+                    attackText.append(attack.get("text").asText()).append("; ");
+                }
+            }
+            description = attackText.length() > 0 ? attackText.toString() : null;
+        }
+
+        card.addTranslation(new CardTranslation(card, Language.US, cardNode.get("name").asText(), description));
 
         logger.debug("Appel à saveCard pour la carte : {}", card.getCardNumber());
         persistenceService.saveCard(card, set);
