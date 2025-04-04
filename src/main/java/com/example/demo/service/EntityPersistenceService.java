@@ -41,7 +41,7 @@ public class EntityPersistenceService {
     }
 
     @Transactional
-    public CardSet saveSet(String setCode, String setName, Serie serie, String ptcgoCode, String releaseDate, Integer totalCards) {
+    public CardSet saveSet(String setCode, String setName, Serie serie, String ptcgoCode, String releaseDate, Integer totalCards, String legalities) {
         logger.debug("Tentative de sauvegarde du set : {} (setName: {})", setCode, setName);
         CardSet existingSet = cardSetRepository.findBySetCode(setCode).orElse(null);
         if (existingSet != null) {
@@ -56,6 +56,7 @@ public class EntityPersistenceService {
                 ((PokemonSet) newSet).setPtcgoCode(ptcgoCode);
                 ((PokemonSet) newSet).setReleaseDate(releaseDate);
                 ((PokemonSet) newSet).setTotalCards(totalCards);
+                ((PokemonSet) newSet).setLegalities(legalities);
                 break;
             default:
                 throw new IllegalArgumentException("Type de jeu non supporté : " + serie.getGameType());

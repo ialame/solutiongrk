@@ -51,9 +51,10 @@ public class PokemonDataService implements GameDataService {
         String ptcgoCode = setNode.has("ptcgoCode") ? setNode.get("ptcgoCode").asText() : null;
         String releaseDate = setNode.has("releaseDate") ? setNode.get("releaseDate").asText() : null;
         Integer totalCards = setNode.has("total") ? setNode.get("total").asInt() : null;
+        String legalities = setNode.has("legalities") ? setNode.get("legalities").toString() : null;
 
         Serie serie = persistenceService.saveSerie(serieName, gameType);
-        CardSet set = persistenceService.saveSet(setCode, setName, serie, ptcgoCode, releaseDate, totalCards);
+        CardSet set = persistenceService.saveSet(setCode, setName, serie, ptcgoCode, releaseDate, totalCards, legalities);
 
         int page = 1;
         int pageSize = 50;
