@@ -3,7 +3,7 @@ package com.example.demo.service;
 import com.example.demo.entity.Language;
 import com.example.demo.entity.Card;
 import com.example.demo.entity.PokemonCard;
-import com.example.demo.entity.YuGiOhCard;
+import com.example.demo.entity.YugiohCard;
 import com.example.demo.repository.CardRepository;
 import com.example.demo.repository.PokemonCardRepository;
 import com.example.demo.repository.YuGiOhCardRepository;
@@ -57,7 +57,7 @@ public class CardService {
     }
 
     // Méthodes spécifiques pour Yu-Gi-Oh!
-    public List<YuGiOhCard> getYuGiOhCardsByCardType(String cardType) {
+    public List<YugiohCard> getYuGiOhCardsByCardType(String cardType) {
         return yuGiOhCardRepository.findByCardType(cardType);
     }
 }

@@ -9,7 +9,7 @@ import lombok.EqualsAndHashCode;
 @Data
 @Table(name = "yugioh_card")
 @PrimaryKeyJoinColumn(name = "id")
-public class YuGiOhCard extends Card {
+public class YugiohCard extends Card {
 
     @Column(name = "attack")
     private Integer attack;

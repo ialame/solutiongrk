@@ -8,26 +8,28 @@ import java.util.Objects;
 @Data
 @Entity
 @Table(name = "card_translation")
-public class CardTranslation {
-
+@Inheritance(strategy = InheritanceType.JOINED)
+public abstract class CardTranslation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "card_id")
+    @JoinColumn(name = "card_id", nullable = false)
     private Card card;
 
-    @Enumerated(EnumType.STRING)
+    @Column(name = "language", nullable = false)
     private Language language;
 
-    @Column(nullable = false)
+    @Column(name = "name", nullable = false)
     private String name;
 
-    @Column
+    @Column(name = "description")
     private String description;
 
+    // Constructeurs
     public CardTranslation() {}
+
     public CardTranslation(Card card, Language language, String name, String description) {
         this.card = card;
         this.language = language;

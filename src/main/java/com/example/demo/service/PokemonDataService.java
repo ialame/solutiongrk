@@ -92,24 +92,35 @@ public class PokemonDataService implements GameDataService {
         if (cardNode.has("hp")) card.setHp(cardNode.get("hp").asInt());
         if (cardNode.has("weaknesses")) card.setWeakness(cardNode.get("weaknesses").get(0).get("type").asText());
 
-        // Gestion de la description
+        // Extraction de la description et flavorText
         String description = null;
+        String flavorText = null;
         if (cardNode.has("flavorText")) {
-            description = cardNode.get("flavorText").asText();
+            flavorText = cardNode.get("flavorText").asText();
+        }
+        if (cardNode.has("types") && cardNode.has("hp")) {
+            description = cardNode.get("types").get(0).asText() + "-type Pokémon with " + cardNode.get("hp").asText() + " HP";
         } else if (cardNode.has("attacks") && cardNode.get("attacks").size() > 0) {
-            StringBuilder attackText = new StringBuilder();
-            for (JsonNode attack : cardNode.get("attacks")) {
-                if (attack.has("text")) {
-                    attackText.append(attack.get("text").asText()).append("; ");
-                }
-            }
-            description = attackText.length() > 0 ? attackText.toString() : null;
+            JsonNode attack = cardNode.get("attacks").get(0);
+            description = attack.get("name").asText() + ": " + (attack.has("text") ? attack.get("text").asText() : attack.get("damage").asText());
         }
 
-        card.addTranslation(new CardTranslation(card, Language.US, cardNode.get("name").asText(), description));
-
+        card.addTranslation(new PokemonCardTranslation(card, Language.US, cardNode.get("name").asText(), description, flavorText));
         logger.debug("Appel à saveCard pour la carte : {}", card.getCardNumber());
         persistenceService.saveCard(card, set);
         logger.debug("Carte {} traitée avec succès", card.getCardNumber());
+    }
+
+    private void processYugiohCard(JsonNode cardNode, CardSet set) {
+        YugiohCard card = new YugiohCard();
+        card.setCardNumber(cardNode.get("card_number").asText()); // Ajustez selon l'API Yu-Gi-Oh!
+        // Autres champs...
+
+        String description = cardNode.has("desc") ? cardNode.get("desc").asText() : null;
+        String effect = cardNode.has("desc") ? cardNode.get("desc").asText() : null;
+
+        card.addTranslation(new YugiohCardTranslation(card, Language.US, cardNode.get("name").asText(), description, effect));
+
+        persistenceService.saveCard(card, set);
     }
 }
