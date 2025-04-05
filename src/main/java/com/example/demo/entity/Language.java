@@ -1,17 +1,17 @@
 package com.example.demo.entity;
 
-import lombok.Getter;
+import jakarta.persistence.*;
+import lombok.Data;
 
-@Getter
-public enum Language {
-    EN("en"), // Anglais
-    FR("fr"), // Français
-    IT("it"); // Italien
+@Entity
+@Table(name = "language")
+@Data
+public class Language {
 
-    private final String code;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    Language(String code) {
-        this.code = code;
-    }
-
+    @Column(name = "code", nullable = false, unique = true)
+    private String code;
 }

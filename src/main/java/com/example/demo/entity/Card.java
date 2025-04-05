@@ -3,15 +3,14 @@ package com.example.demo.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 @Data
 @Entity
 @Table(name = "card")
 @Inheritance(strategy = InheritanceType.JOINED)
-public class Card {
+public abstract class Card { // Ajout de abstract
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -37,19 +36,15 @@ public class Card {
             joinColumns = @JoinColumn(name = "card_id"),
             inverseJoinColumns = @JoinColumn(name = "card_set_id")
     )
-    private Set<CardSet> sets = new HashSet<>();
+    private List<CardSet> cardSets = new ArrayList<>();
 
-    // Constructeurs
     public Card() {}
-
-    // Getters et setters
 
     public void addTranslation(CardTranslation translation) {
         translations.add(translation);
         translation.setCard(this);
     }
 
-    // hashCode et equals sans récursion
     @Override
     public int hashCode() {
         return Objects.hash(id, cardNumber, rarity, imagePath, gameType);

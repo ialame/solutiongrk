@@ -6,5 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface PokemonCardRepository extends JpaRepository<PokemonCard, Long> {
-    List<PokemonCard> findByEnergyType(String energyType);
+    PokemonCard findByCardNumberAndGameType(String cardNumber, String gameType);
+    List<PokemonCard> findAll(); // Déjà inclus via JpaRepository, juste pour clarté
 }

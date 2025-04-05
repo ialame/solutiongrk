@@ -4,23 +4,36 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.Objects;
+import java.time.LocalDate;
+import java.util.*;
 
 @Setter
 @Getter
 @Entity
 @Table(name = "card_set")
 @Inheritance(strategy = InheritanceType.JOINED)
-public class CardSet {
-    // Getters et setters
+public abstract class CardSet { // Ajout de abstract
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "set_code")
     private String setCode;
+
+    @Column(name = "release_date")
+    private LocalDate releaseDate;
+
+    @Column(name = "total_cards")
+    private Integer totalCards;
+
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JoinTable(
+            name = "card_set_card",
+            joinColumns = @JoinColumn(name = "card_set_id"),
+            inverseJoinColumns = @JoinColumn(name = "card_id")
+    )
+    private List<Card> cards = new ArrayList<>();
 
     @ManyToOne
     @JoinColumn(name = "serie_id")
@@ -29,12 +42,8 @@ public class CardSet {
     @OneToMany(mappedBy = "cardSet", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<CardSetTranslation> translations = new HashSet<>();
 
-    @ManyToMany(mappedBy = "sets")
-    private Set<Card> cards = new HashSet<>();
-
     public CardSet() {}
 
-    // Méthode pour ajouter une traduction
     public void addTranslation(CardSetTranslation translation) {
         translations.add(translation);
         translation.setCardSet(this);

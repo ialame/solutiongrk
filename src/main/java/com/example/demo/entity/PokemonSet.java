@@ -15,9 +15,6 @@ public class PokemonSet extends CardSet {
     @Column(name = "ptcgo_code")
     private String ptcgoCode;
 
-    @Column(name = "release_date")
-    private String releaseDate;
-
     @Column(name = "total_cards")
     private Integer totalCards;
 
@@ -25,7 +22,7 @@ public class PokemonSet extends CardSet {
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), legalities, ptcgoCode, releaseDate, totalCards);
+        return Objects.hash(super.hashCode(), legalities, ptcgoCode, totalCards);
     }
 
     @Override
@@ -36,7 +33,6 @@ public class PokemonSet extends CardSet {
         PokemonSet that = (PokemonSet) o;
         return Objects.equals(legalities, that.legalities) &&
                 Objects.equals(ptcgoCode, that.ptcgoCode) &&
-                Objects.equals(releaseDate, that.releaseDate) &&
                 Objects.equals(totalCards, that.totalCards);
     }
 }

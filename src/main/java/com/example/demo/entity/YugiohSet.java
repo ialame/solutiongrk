@@ -9,10 +9,7 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "yugioh_set")
-public class YuGiOhSet extends CardSet {
-
-    @Column(name = "release_date")
-    private String releaseDate; // Format : "YYYY-MM-DD"
+public class YugiohSet extends CardSet {
 
     @Column(name = "set_type")
     private String setType; // Ex. "Booster Pack", "Structure Deck"
