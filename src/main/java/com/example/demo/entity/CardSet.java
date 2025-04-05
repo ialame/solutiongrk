@@ -1,50 +1,56 @@
 package com.example.demo.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
+import java.util.Objects;
 
-@Data
+@Setter
+@Getter
 @Entity
-@Inheritance(strategy = InheritanceType.JOINED)
 @Table(name = "card_set")
-public abstract class CardSet {
-
-    // Getters, setters, addTranslation
-    @Getter
+@Inheritance(strategy = InheritanceType.JOINED)
+public class CardSet {
+    // Getters et setters
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(name = "set_code")
     private String setCode;
 
     @ManyToOne
     @JoinColumn(name = "serie_id")
     private Serie serie;
 
+    @OneToMany(mappedBy = "cardSet", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<CardSetTranslation> translations = new HashSet<>();
+
     @ManyToMany(mappedBy = "sets")
     private Set<Card> cards = new HashSet<>();
 
-    @OneToMany(mappedBy = "cardSet", cascade = CascadeType.ALL)
-    private Set<CardSetTranslation> translations = new HashSet<>();
+    public CardSet() {}
 
-    public void addTranslation(CardSetTranslation translation) { this.translations.add(translation); }
+    // Méthode pour ajouter une traduction
+    public void addTranslation(CardSetTranslation translation) {
+        translations.add(translation);
+        translation.setCardSet(this);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, setCode);
+    }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof CardSet)) return false;
         CardSet cardSet = (CardSet) o;
-        return Objects.equals(id, cardSet.id) && Objects.equals(setCode, cardSet.setCode);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, setCode); // Exclure translations et cards
+        return Objects.equals(id, cardSet.id) &&
+                Objects.equals(setCode, cardSet.setCode);
     }
 }

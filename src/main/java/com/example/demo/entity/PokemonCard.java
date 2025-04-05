@@ -1,33 +1,29 @@
 package com.example.demo.entity;
 
 import jakarta.persistence.*;
+import lombok.Data;
 
 import java.util.Objects;
 
+@Data
 @Entity
 @Table(name = "pokemon_card")
 public class PokemonCard extends Card {
-
-    @Column
-    private String energyType;
-
-    @Column
+    @Column(name = "hp")
     private Integer hp;
 
-    @Column
+    @Column(name = "energy_type")
+    private String energyType;
+
+    @Column(name = "weakness")
     private String weakness;
 
-    public PokemonCard() {
-        setGameType("Pokemon");
-    }
+    public PokemonCard() {}
 
-    // Getters et setters
-    public String getEnergyType() { return energyType; }
-    public void setEnergyType(String energyType) { this.energyType = energyType; }
-    public Integer getHp() { return hp; }
-    public void setHp(Integer hp) { this.hp = hp; }
-    public String getWeakness() { return weakness; }
-    public void setWeakness(String weakness) { this.weakness = weakness; }
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), hp, energyType, weakness);
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -35,13 +31,8 @@ public class PokemonCard extends Card {
         if (!(o instanceof PokemonCard)) return false;
         if (!super.equals(o)) return false;
         PokemonCard that = (PokemonCard) o;
-        return Objects.equals(energyType, that.energyType) &&
-                Objects.equals(hp, that.hp) &&
+        return Objects.equals(hp, that.hp) &&
+                Objects.equals(energyType, that.energyType) &&
                 Objects.equals(weakness, that.weakness);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode(), energyType, hp, weakness);
     }
 }

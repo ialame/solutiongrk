@@ -2,38 +2,41 @@ package com.example.demo.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
+import java.util.Objects;
 
 @Data
 @Entity
 @Table(name = "pokemon_set")
 public class PokemonSet extends CardSet {
+    @Column(name = "legalities")
+    private String legalities;
+
+    @Column(name = "ptcgo_code")
+    private String ptcgoCode;
 
     @Column(name = "release_date")
-    private String releaseDate; // Format : "YYYY-MM-DD"
+    private String releaseDate;
 
     @Column(name = "total_cards")
     private Integer totalCards;
 
-    @Column(name = "legalities")
-    private String legalities; // Ex. "Standard", "Expanded", "Unlimited"
+    public PokemonSet() {}
 
-    @Column(name = "ptcgo_code")
-    private String ptcgoCode; // Code pour Pokémon TCG Online
-
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), legalities, ptcgoCode, releaseDate, totalCards);
+    }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof PokemonSet)) return false;
-        return super.equals(o);
+        if (!super.equals(o)) return false;
+        PokemonSet that = (PokemonSet) o;
+        return Objects.equals(legalities, that.legalities) &&
+                Objects.equals(ptcgoCode, that.ptcgoCode) &&
+                Objects.equals(releaseDate, that.releaseDate) &&
+                Objects.equals(totalCards, that.totalCards);
     }
-
-    @Override
-    public int hashCode() {
-        return super.hashCode(); // Réutilise le hashCode de CardSet
-    }
-    // Getters et setters
-
 }
