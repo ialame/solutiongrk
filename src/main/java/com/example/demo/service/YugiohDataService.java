@@ -29,10 +29,27 @@ public class YugiohDataService {
     private static final String IMAGE_DIRECTORY = "images/Yugioh";
 
     private static final Map<String, String> SET_CODE_TO_NAME = new HashMap<>();
+    private static final Map<String, Map<String, String>> CARD_TRANSLATIONS = new HashMap<>();
+    private static final Map<String, Map<String, String>> SET_TRANSLATIONS = new HashMap<>();
     static {
         SET_CODE_TO_NAME.put("LOB", "Legend of Blue Eyes White Dragon");
         SET_CODE_TO_NAME.put("MRD", "Metal Raiders");
         SET_CODE_TO_NAME.put("SRL", "Spell Ruler");
+
+        Map<String, String> blueEyesTranslations = new HashMap<>();
+        blueEyesTranslations.put("en", "Blue-Eyes White Dragon");
+        blueEyesTranslations.put("fr", "Dragon Blanc aux Yeux Bleus");
+        CARD_TRANSLATIONS.put("89631139", blueEyesTranslations);
+
+        Map<String, String> darkMagicianTranslations = new HashMap<>();
+        darkMagicianTranslations.put("en", "Dark Magician");
+        darkMagicianTranslations.put("fr", "Magicien Sombre");
+        CARD_TRANSLATIONS.put("46986414", darkMagicianTranslations);
+
+        Map<String, String> lobTranslations = new HashMap<>();
+        lobTranslations.put("en", "Legend of Blue Eyes White Dragon");
+        lobTranslations.put("fr", "Légende du Dragon Blanc aux Yeux Bleus");
+        SET_TRANSLATIONS.put("LOB", lobTranslations);
     }
 
     @Autowired
@@ -57,15 +74,13 @@ public class YugiohDataService {
     private YugiohSetRepository yugiohSetRepository;
 
     public void processYugiohSet(String setCode) {
-        // Convertir le code abrégé en nom complet
         String setName = SET_CODE_TO_NAME.getOrDefault(setCode, setCode);
-
-        // Utiliser UriComponentsBuilder pour construire l'URL, puis dé-encoder %20 en espaces
         String url = UriComponentsBuilder.fromHttpUrl(YGOPRODECK_API_URL + "/cardinfo.php")
-                .queryParam("cardset", "{setName}")
-                .buildAndExpand(setName)
-                .toUriString();
-        logger.info("URL construite avant envoi : {}", url); // Log pour vérification
+                .queryParam("cardset", setName)
+                .toUriString()
+                .replace("%20", " "); // Correction pour RestTemplate
+
+        logger.info("URL construite avant envoi : {}", url);
 
         String response;
 
@@ -89,11 +104,9 @@ public class YugiohDataService {
                 throw new IllegalStateException("Aucune carte trouvée pour le set " + setName);
             }
 
-            // Sauvegarder le set
             int totalCards = cards.size();
             YugiohSet yugiohSet = yugiohSetService.saveSet(setCode, totalCards);
 
-            // Récupérer et associer la série
             String serieName = setCode.split("-")[0];
             Optional<Serie> serieOptional = serieService.findByNameAndGameType(serieName, "Yugioh");
             Serie serie;
@@ -105,20 +118,27 @@ public class YugiohDataService {
             yugiohSet.setSerie(serie);
             yugiohSetRepository.save(yugiohSet);
 
-            // Sauvegarder la traduction anglaise du set
-            String setNameEn = cards.get(0).path("card_sets").get(0).path("set_name").asText(setCode);
-            yugiohSetService.saveSetTranslation(yugiohSet.getId(), "en", setNameEn);
+            // Sauvegarder les traductions du set
+            Map<String, String> setTranslations = SET_TRANSLATIONS.getOrDefault(setCode, new HashMap<>());
+            setTranslations.forEach((lang, name) ->
+                    yugiohSetService.saveSetTranslation(yugiohSet.getId(), lang, name));
 
-            // Traiter les cartes
             for (JsonNode cardNode : cards) {
                 String cardId = cardNode.path("id").asText();
-                Long cardIdInDb = yugiohCardService.saveYugiohCard(cardId, setCode);
+                Integer attack = cardNode.path("atk").isMissingNode() ? null : cardNode.path("atk").asInt();
+                Integer defense = cardNode.path("def").isMissingNode() ? null : cardNode.path("def").asInt();
+                String type = cardNode.path("type").asText();
+
+                Long cardIdInDb = yugiohCardService.saveYugiohCard(cardId, setCode, attack, defense, type);
 
                 String imageUrl = cardNode.path("card_images").get(0).path("image_url").asText();
                 imageDownloader.downloadImage(imageUrl, cardId, IMAGE_DIRECTORY);
 
-                String nameEn = cardNode.path("name").asText();
-                yugiohCardService.saveCardTranslation(cardIdInDb, "en", nameEn);
+                // Sauvegarder les traductions de la carte
+                Map<String, String> cardTranslations = CARD_TRANSLATIONS.getOrDefault(cardId, new HashMap<>());
+                cardTranslations.put("en", cardNode.path("name").asText()); // Ajouter l'anglais depuis l'API
+                cardTranslations.forEach((lang, name) ->
+                        yugiohCardService.saveCardTranslation(cardIdInDb, lang, name));
             }
         } catch (IOException e) {
             logger.error("Erreur lors du traitement du set Yu-Gi-Oh {} : {}", setName, e.getMessage());

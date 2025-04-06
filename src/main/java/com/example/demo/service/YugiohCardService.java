@@ -34,7 +34,7 @@ public class YugiohCardService {
     private LanguageRepository languageRepository;
 
     @Transactional
-    public Long saveYugiohCard(String cardId, String setCode) {
+    public Long saveYugiohCard(String cardId, String setCode, Integer attack, Integer defense, String type) {
         Optional<YugiohSet> setOptional = yugiohSetRepository.findBySetCode(setCode);
         if (setOptional.isEmpty()) {
             throw new IllegalStateException("Set Yu-Gi-Oh " + setCode + " non trouvé");
@@ -47,6 +47,9 @@ public class YugiohCardService {
             card.setCardNumber(cardId);
             card.setGameType("Yugioh");
             card.setImagePath("/images/Yugioh/" + cardId + ".jpg");
+            card.setAttack(attack);
+            card.setDefense(defense);
+            card.setType(type);
 
             card.getCardSets().add(yugiohSet);
             yugiohSet.getCards().add(card);
