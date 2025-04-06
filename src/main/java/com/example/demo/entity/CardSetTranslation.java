@@ -3,10 +3,9 @@ package com.example.demo.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 
-@Entity
-@Table(name = "card_set_translation")
+@MappedSuperclass
 @Data
-public class CardSetTranslation {
+public abstract class CardSetTranslation {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -16,10 +15,19 @@ public class CardSetTranslation {
     @JoinColumn(name = "card_set_id")
     private CardSet cardSet;
 
+    @ManyToOne
+    @JoinColumn(name = "language_id", nullable = false)
+    private Language language;
+
     @Column(name = "name")
     private String name;
 
-    @ManyToOne // Correction ici
-    @JoinColumn(name = "language_id", nullable = false) // Colonne de jointure vers la table language
-    private Language language;
+    public CardSetTranslation() {
+    }
+
+    public CardSetTranslation(CardSet cardSet, Language language, String name) {
+        this.cardSet = cardSet;
+        this.language = language;
+        this.name = name;
+    }
 }

@@ -34,27 +34,5 @@ public abstract class CardSet {
     @JoinColumn(name = "serie_id")
     private Serie serie;
 
-    @OneToMany(mappedBy = "cardSet", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<CardSetTranslation> translations = new HashSet<>();
-
     public CardSet() {}
-
-    public void addTranslation(CardSetTranslation translation) {
-        translations.add(translation);
-        translation.setCardSet(this);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, setCode);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof CardSet)) return false;
-        CardSet cardSet = (CardSet) o;
-        return Objects.equals(id, cardSet.id) &&
-                Objects.equals(setCode, cardSet.setCode);
-    }
 }

@@ -3,22 +3,24 @@ package com.example.demo.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 
+import java.util.ArrayList;
+import java.util.List;
 
-@Data
 @EqualsAndHashCode(callSuper = true)
+@Data
 @Entity
-@Table(name = "yugioh_set")
 public class YugiohSet extends CardSet {
 
-    @Column(name = "set_type")
-    private String setType; // Ex. "Booster Pack", "Structure Deck"
+    @OneToMany(mappedBy = "cardSet", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<YugiohSetTranslation> translations = new ArrayList<>();
 
-    @Column(name = "card_count")
-    private Integer cardCount;
+    public YugiohSet() {}
 
-    @Column(name = "rarity_distribution")
-    private String rarityDistribution; // Ex. "10 Ultra Rares, 20 Super Rares"
-
-    // Getters et setters
+    public void addTranslation(YugiohSetTranslation translation) {
+        translations.add(translation);
+        translation.setCardSet(this);
+    }
 }
