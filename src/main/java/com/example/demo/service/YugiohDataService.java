@@ -60,10 +60,12 @@ public class YugiohDataService {
         // Convertir le code abrégé en nom complet
         String setName = SET_CODE_TO_NAME.getOrDefault(setCode, setCode);
 
-        // Utiliser UriComponentsBuilder pour construire l'URL correctement
+        // Utiliser UriComponentsBuilder pour construire l'URL, puis dé-encoder %20 en espaces
         String url = UriComponentsBuilder.fromHttpUrl(YGOPRODECK_API_URL + "/cardinfo.php")
-                .queryParam("cardset", setName)
+                .queryParam("cardset", "{setName}")
+                .buildAndExpand(setName)
                 .toUriString();
+        logger.info("URL construite avant envoi : {}", url); // Log pour vérification
 
         String response;
 
