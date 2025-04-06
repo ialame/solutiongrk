@@ -1,23 +1,26 @@
 package com.example.demo.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+import lombok.Data;
 
 @Entity
 @Table(name = "yugioh_card_translation")
+@Data
 public class YugiohCardTranslation extends CardTranslation {
-    // Champs spécifiques à Yu-Gi-Oh! (ex. effet de carte)
-    @Column(name = "effect")
-    private String effect;
 
-    // Constructeurs
-    public YugiohCardTranslation() {}
-
-    public YugiohCardTranslation(Card card, Language language, String name, String description, String effect) {
+    public YugiohCardTranslation(Card card, Language language, String name, String description) {
         super(card, language, name, description);
-        this.effect = effect;
+        // Pas de champs spécifiques à Yu-Gi-Oh pour l'instant
     }
 
-    // Getters et setters
-    public String getEffect() { return effect; }
-    public void setEffect(String effect) { this.effect = effect; }
+    // Optionnel : Constructeur complet avec flavorText si tu veux l'utiliser
+    public YugiohCardTranslation(Card card, Language language, String name, String description, String flavorText) {
+        super(card, language, name, description);
+        this.setFlavorText(flavorText);
+    }
+
+    public YugiohCardTranslation() {
+
+    }
 }

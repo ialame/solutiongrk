@@ -3,13 +3,10 @@ package com.example.demo.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 
-import java.util.Objects;
-
 @Data
-@Entity
-@Table(name = "card_translation")
-@Inheritance(strategy = InheritanceType.JOINED)
-public class CardTranslation {
+@MappedSuperclass
+public abstract class CardTranslation {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -18,8 +15,8 @@ public class CardTranslation {
     @JoinColumn(name = "card_id")
     private Card card;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "language")
+    @ManyToOne
+    @JoinColumn(name = "language_id", nullable = false)
     private Language language;
 
     @Column(name = "name")
@@ -28,28 +25,18 @@ public class CardTranslation {
     @Column(name = "description")
     private String description;
 
-    public CardTranslation() {}
+    @Column(name = "flavor_text")
+    private String flavorText;
 
+    // Constructeur par défaut requis par JPA/Hibernate
+    public CardTranslation() {
+    }
+
+    // Constructeur pour initialiser les champs principaux
     public CardTranslation(Card card, Language language, String name, String description) {
         this.card = card;
         this.language = language;
         this.name = name;
         this.description = description;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, language, name, description);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof CardTranslation)) return false;
-        CardTranslation that = (CardTranslation) o;
-        return Objects.equals(id, that.id) &&
-                language == that.language &&
-                Objects.equals(name, that.name) &&
-                Objects.equals(description, that.description);
     }
 }

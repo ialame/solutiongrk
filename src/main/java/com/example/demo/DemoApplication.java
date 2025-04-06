@@ -7,7 +7,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class DemoApplication implements CommandLineRunner {
+public class DemoApplication { //implements CommandLineRunner {
 
     @Autowired
     private PokemonDataService pokemonDataService;
@@ -16,8 +16,8 @@ public class DemoApplication implements CommandLineRunner {
         SpringApplication.run(DemoApplication.class, args);
     }
 
-    @Override
-    public void run(String... args) {
-        pokemonDataService.processPokemonSet("base1");
-    }
+//    @Override
+//    public void run(String... args) {
+//        pokemonDataService.processPokemonSet("base1");
+//    }
 }

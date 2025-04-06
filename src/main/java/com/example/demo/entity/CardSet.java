@@ -12,7 +12,7 @@ import java.util.*;
 @Entity
 @Table(name = "card_set")
 @Inheritance(strategy = InheritanceType.JOINED)
-public abstract class CardSet { // Ajout de abstract
+public abstract class CardSet {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,12 +27,7 @@ public abstract class CardSet { // Ajout de abstract
     @Column(name = "total_cards")
     private Integer totalCards;
 
-    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JoinTable(
-            name = "card_set_card",
-            joinColumns = @JoinColumn(name = "card_set_id"),
-            inverseJoinColumns = @JoinColumn(name = "card_id")
-    )
+    @ManyToMany(mappedBy = "cardSets", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private List<Card> cards = new ArrayList<>();
 
     @ManyToOne

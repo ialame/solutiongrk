@@ -7,7 +7,7 @@ import com.example.demo.entity.PokemonCardTranslation;
 import com.example.demo.entity.Language;
 import com.example.demo.repository.PokemonSetRepository;
 import com.example.demo.repository.PokemonCardRepository;
-import com.example.demo.repository.CardTranslationRepository;
+import com.example.demo.repository.PokemonCardTranslationRepository; // Changement ici
 import com.example.demo.repository.LanguageRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,23 +23,27 @@ public class PokemonCardService {
     private static final Logger logger = LoggerFactory.getLogger(PokemonCardService.class);
 
     @Autowired
-    private PokemonSetRepository pokemonSetRepository; // Changement ici
+    private PokemonSetRepository pokemonSetRepository;
 
     @Autowired
     private PokemonCardRepository pokemonCardRepository;
 
     @Autowired
-    private CardTranslationRepository cardTranslationRepository;
+    private PokemonCardTranslationRepository cardTranslationRepository; // Changement ici
 
     @Autowired
     private LanguageRepository languageRepository;
 
+    public PokemonSetRepository getPokemonSetRepository() {
+        return pokemonSetRepository;
+    }
+
     @Transactional
-    public PokemonSet saveSet(String setCode, int totalCards) { // Retourne PokemonSet
+    public PokemonSet saveSet(String setCode, int totalCards) {
         Optional<PokemonSet> setOptional = pokemonSetRepository.findBySetCode(setCode);
         PokemonSet pokemonSet;
         if (setOptional.isEmpty()) {
-            pokemonSet = new PokemonSet(); // Instanciation de PokemonSet
+            pokemonSet = new PokemonSet();
             pokemonSet.setSetCode(setCode);
             pokemonSet.setTotalCards(totalCards);
             pokemonSet = pokemonSetRepository.save(pokemonSet);
@@ -70,7 +74,6 @@ public class PokemonCardService {
             card.setEnergyType(energyType);
             card.setWeakness(weakness);
 
-            // Ajouter la relation N-N
             card.getCardSets().add(pokemonSet);
             pokemonSet.getCards().add(card);
 
@@ -107,14 +110,10 @@ public class PokemonCardService {
             language = languageRepository.save(language);
         }
 
-        CardTranslation existingTranslation = cardTranslationRepository.findByCardAndLanguage(card, language);
+        PokemonCardTranslation existingTranslation = cardTranslationRepository.findByCardAndLanguage(card, language);
         if (existingTranslation == null) {
-            PokemonCardTranslation translation = new PokemonCardTranslation();
-            translation.setCard(card);
-            translation.setLanguage(language);
-            translation.setName(name);
-            translation.setDescription("Card: " + name);
-            translation.setFlavorText(flavorText);
+            // Utilisation du constructeur
+            PokemonCardTranslation translation = new PokemonCardTranslation(card, language, name, "Card: " + name, flavorText);
             card.getTranslations().add(translation);
             cardTranslationRepository.save(translation);
             logger.debug("Traduction sauvegardée pour carte {} en {} : {} (Flavor: {})",
