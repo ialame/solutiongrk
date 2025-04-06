@@ -15,20 +15,20 @@ public abstract class CardTranslation {
 
     @ManyToOne
     @JoinColumn(name = "card_id")
-    private Card card;
+    protected Card card;
 
     @ManyToOne
     @JoinColumn(name = "language_id", nullable = false)
-    private Language language;
+    protected Language language;
 
     @Column(name = "name")
-    private String name;
+    protected String name;
 
     @Column(name = "description")
-    private String description;
+    protected String description;
 
     @Column(name = "flavor_text")
-    private String flavorText;
+    protected String flavorText;
 
     // Constructeur par défaut requis par JPA/Hibernate
     public CardTranslation() {

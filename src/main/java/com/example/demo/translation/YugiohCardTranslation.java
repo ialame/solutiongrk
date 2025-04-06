@@ -2,29 +2,31 @@ package com.example.demo.translation;
 
 import com.example.demo.entity.Card;
 import com.example.demo.entity.Language;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-@EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "yugioh_card_translation")
 @Data
+@EqualsAndHashCode(callSuper = true)
 public class YugiohCardTranslation extends CardTranslation {
-
-    public YugiohCardTranslation(Card card, Language language, String name, String description) {
-        super(card, language, name, description);
-        // Pas de champs spécifiques à Yu-Gi-Oh pour l'instant
+    public YugiohCardTranslation() {
     }
 
-    // Optionnel : Constructeur complet avec flavorText si tu veux l'utiliser
+    public YugiohCardTranslation(Card card, Language language, String name, String description) {
+        super(card, language, null, null); // Ne pas passer name/description à super
+        this.card = card;
+        this.language = language;
+        this.name = name; // Forcer ici
+        this.description = description; // Forcer ici
+    }
+
     public YugiohCardTranslation(Card card, Language language, String name, String description, String flavorText) {
-        super(card, language, name, description);
+        this(card, language, name, description);
         this.setFlavorText(flavorText);
     }
 
-    public YugiohCardTranslation() {
-
-    }
+    @Column(name = "description", length = 1000)
+    private String description;
 }

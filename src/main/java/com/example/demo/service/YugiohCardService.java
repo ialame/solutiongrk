@@ -87,14 +87,19 @@ public class YugiohCardService {
             language = languageRepository.save(language);
         }
 
-        YugiohCardTranslation existingTranslation = cardTranslationRepository.findByCardAndLanguage(card, language);
+        YugiohCardTranslation existingTranslation = cardTranslationRepository.findByCardAndLanguage_Id(card, language.getId());
         if (existingTranslation == null) {
-            YugiohCardTranslation translation = new YugiohCardTranslation(card, language, name, "Card: " + name);
+            String description = "Card: " + name;
+            logger.info("Sauvegarde de la traduction pour carte {} en {} : name='{}' (length={}), description='{}' (length={})",
+                    cardId, languageCode, name, name.length(), description, description.length());
+            YugiohCardTranslation translation = new YugiohCardTranslation(card, language, name, description);
+            logger.info("Après instanciation : translation.name = '{}'", translation.getName());
             card.getTranslations().add(translation);
-            cardTranslationRepository.save(translation);
+            YugiohCardTranslation savedTranslation = cardTranslationRepository.saveAndFlush(translation);
             logger.debug("Traduction sauvegardée pour carte {} en {} : {}", cardId, languageCode, name);
+            logger.info("Vérification post-sauvegarde : ID de la traduction = {}", savedTranslation.getId());
         } else {
-            logger.debug("Traduction déjà existante pour carte {} en {}", cardId, languageCode);
+            logger.debug("Traduction déjà existante pour carte {} en {} : {}", cardId, languageCode, existingTranslation.getName());
         }
     }
 }

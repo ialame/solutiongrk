@@ -20,7 +20,7 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        pokemonDataService.processPokemonSet("base1"); // Correction ici
+        //pokemonDataService.processPokemonSet("base1"); // Correction ici
         yugiohDataService.processYugiohSet("LOB");
     }
 }
