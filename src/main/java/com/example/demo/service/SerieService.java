@@ -1,7 +1,7 @@
 package com.example.demo.service;
 
 import com.example.demo.entity.Serie;
-import com.example.demo.entity.SerieTranslation;
+import com.example.demo.translation.SerieTranslation;
 import com.example.demo.entity.Language;
 import com.example.demo.repository.SerieRepository;
 import com.example.demo.repository.LanguageRepository;

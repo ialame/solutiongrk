@@ -1,10 +1,9 @@
 package com.example.demo.entity;
 
+import com.example.demo.translation.PokemonSetTranslation;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;

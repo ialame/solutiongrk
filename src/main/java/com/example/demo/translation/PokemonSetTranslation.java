@@ -1,5 +1,7 @@
-package com.example.demo.entity;
+package com.example.demo.translation;
 
+import com.example.demo.entity.CardSet;
+import com.example.demo.entity.Language;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.Data;

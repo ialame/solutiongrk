@@ -2,8 +2,7 @@ package com.example.demo.service;
 
 import com.example.demo.entity.PokemonSet;
 import com.example.demo.entity.PokemonCard;
-import com.example.demo.entity.CardTranslation;
-import com.example.demo.entity.PokemonCardTranslation;
+import com.example.demo.translation.PokemonCardTranslation;
 import com.example.demo.entity.Language;
 import com.example.demo.repository.PokemonSetRepository;
 import com.example.demo.repository.PokemonCardRepository;

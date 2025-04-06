@@ -1,5 +1,6 @@
 package com.example.demo.entity;
 
+import com.example.demo.translation.YugiohCardTranslation;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
