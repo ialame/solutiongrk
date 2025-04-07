@@ -1,33 +1,45 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 
-// Liste des sets pour Yu-Gi-Oh et Pokémon
-const yugiohSets = [
-  { code: 'LOB', name: 'Legend of Blue Eyes White Dragon' },
-  { code: 'MRD', name: 'Metal Raiders' },
-  { code: 'SRL', name: 'Spell Ruler' },
-  // Ajoutez d'autres sets Yu-Gi-Oh selon vos besoins
-];
+interface Language {
+  code: string;
+}
 
-const pokemonSets = [
-  { code: 'base1', name: 'Base Set' },
-  { code: 'base2', name: 'Jungle' },
-  { code: 'base3', name: 'Fossil' },
-  // Ajoutez d'autres sets Pokémon selon vos besoins
-];
+interface SetTranslationDTO {
+  name: string;
+  language: Language;
+}
+
+interface SetDTO {
+  setCode: string;
+  gameType: string;
+  translations: SetTranslationDTO[];
+  serieId: number;
+}
 
 const gameType = ref<string>('Yugioh');
 const seriesCode = ref<string>('');
+const availableSets = ref<SetDTO[]>([]);
 
-// Sélectionner le premier set par défaut pour activer le bouton
-const availableSets = ref(yugiohSets);
-seriesCode.value = availableSets.value[0]?.code || '';
+const fetchSets = async () => {
+  try {
+    const response = await fetch(`/api/${gameType.value.toLowerCase()}-sets`);
+    if (!response.ok) {
+      throw new Error(`Erreur HTTP : ${response.status}`);
+    }
+    const data = await response.json();
+    availableSets.value = data as SetDTO[];
+    seriesCode.value = availableSets.value[0]?.setCode || '';
+  } catch (error) {
+    console.error('Erreur lors de la récupération des sets :', error);
+    availableSets.value = [];
+    seriesCode.value = '';
+  }
+};
 
-// Mettre à jour les sets disponibles quand gameType change
-watch(gameType, (newGameType) => {
-  availableSets.value = newGameType === 'Yugioh' ? yugiohSets : pokemonSets;
-  seriesCode.value = availableSets.value[0]?.code || ''; // Sélectionner le premier set
-});
+watch(gameType, () => {
+  fetchSets();
+}, { immediate: true });
 
 const emit = defineEmits<{
   (e: 'download', gameType: string, seriesCode: string): void;
@@ -51,8 +63,8 @@ const handleDownload = () => {
     </select>
     <label for="seriesCode">Série :</label>
     <select id="seriesCode" v-model="seriesCode">
-      <option v-for="set in availableSets" :key="set.code" :value="set.code">
-        {{ set.name }}
+      <option v-for="set in availableSets" :key="set.setCode" :value="set.setCode">
+        {{ set.translations.find(t => t.language.code === 'en')?.name || 'Nom non défini' }}
       </option>
     </select>
     <button @click="handleDownload" :disabled="!seriesCode">

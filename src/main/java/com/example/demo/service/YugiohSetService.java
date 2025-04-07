@@ -26,11 +26,12 @@ public class YugiohSetService {
     private LanguageRepository languageRepository;
 
     @Transactional
-    public YugiohSet saveSet(String setCode, int totalCards) {
+    public Long saveSet(String setCode, int totalCards) {
         YugiohSet yugiohSet = new YugiohSet();
         yugiohSet.setSetCode(setCode);
         yugiohSet.setTotalCards(totalCards);
-        return yugiohSetRepository.save(yugiohSet);
+        YugiohSet savedSet = yugiohSetRepository.save(yugiohSet);
+        return savedSet.getId(); // Retourne l'ID (Long)
     }
 
     @Transactional
@@ -53,6 +54,6 @@ public class YugiohSetService {
         translation.setLanguage(language);
         translation.setName(name);
         yugiohSetTranslationRepository.save(translation);
-        logger.debug("Traduction sauvegardée pour le set {} en {} : {}", setId, languageCode, name);
+        logger.debug("Traduction sauvegardée pour le set Yu-Gi-Oh {} en {} : {}", setId, languageCode, name);
     }
 }

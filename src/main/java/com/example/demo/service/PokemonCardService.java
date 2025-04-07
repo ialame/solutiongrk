@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -61,5 +62,11 @@ public class PokemonCardService {
         card.getTranslations().add(translation);
         pokemonCardTranslationRepository.save(translation);
         logger.debug("Traduction sauvegardée pour carte Pokémon {} en {} : {}", cardId, languageCode, name);
+    }
+
+    @Transactional(readOnly = true)
+    public List<PokemonCard> findAllCards() {
+        logger.info("Récupération de toutes les cartes Pokémon");
+        return pokemonCardRepository.findAll();
     }
 }
