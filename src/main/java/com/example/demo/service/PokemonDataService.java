@@ -92,11 +92,25 @@ public class PokemonDataService {
             // Traiter les cartes
             for (JsonNode cardNode : cards) {
                 String cardId = cardNode.path("id").asText();
-                String hp = cardNode.path("hp").asText("Unknown");
+                //String hp = cardNode.path("hp").asText("Unknown");
+                Integer hpValue;
+                String hpText = cardNode.path("hp").asText("Unknown");
+                if ("Unknown".equals(hpText) || hpText.isEmpty()) {
+                    hpValue = null; // Ou une valeur par défaut, ex. 0
+                } else {
+                    try {
+                        hpValue = Integer.parseInt(hpText.replace(" HP", "").trim()); // Gère "70 HP" ou "60"
+                    } catch (NumberFormatException e) {
+                        hpValue = null; // Ou loggez l'erreur et définissez une valeur par défaut
+                        logger.warn("Impossible de convertir HP en entier : {}", hpText);
+                    }
+                }
+
+
                 String energyType = cardNode.path("types").get(0) != null ? cardNode.path("types").get(0).asText() : "Unknown";
                 String weakness = cardNode.path("weaknesses").get(0) != null ? cardNode.path("weaknesses").get(0).path("type").asText() : "Unknown";
 
-                Long cardIdInDb = pokemonCardService.savePokemonCard(cardId, setCode, hp, energyType, weakness);
+                Long cardIdInDb = pokemonCardService.savePokemonCard(cardId, setCode, hpValue,null, energyType, weakness);
 
                 String imageUrl = cardNode.path("images").path("large").asText();
                 imageDownloader.downloadImage(imageUrl, cardId, IMAGE_DIRECTORY);

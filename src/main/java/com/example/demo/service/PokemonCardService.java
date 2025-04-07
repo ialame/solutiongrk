@@ -35,7 +35,7 @@ public class PokemonCardService {
         card.setEnergyType(energyType);
         card.setWeakness(weakness);
         PokemonCard savedCard = pokemonCardRepository.save(card);
-        return savedCard.getId(); // Retourne l'ID généré
+        return savedCard.getId();
     }
 
     @Transactional
