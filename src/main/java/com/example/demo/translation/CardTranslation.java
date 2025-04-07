@@ -2,6 +2,7 @@ package com.example.demo.translation;
 
 import com.example.demo.entity.Card;
 import com.example.demo.entity.Language;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -11,10 +12,11 @@ public abstract class CardTranslation {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    protected Long id;
 
     @ManyToOne
     @JoinColumn(name = "card_id")
+    @JsonIgnore // Ajouté pour briser la récursivité
     protected Card card;
 
     @ManyToOne

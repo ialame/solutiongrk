@@ -1,17 +1,17 @@
 package com.example.demo.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
-@Table(name = "card")
-@Inheritance(strategy = InheritanceType.JOINED)
 @Data
 public abstract class Card {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -34,5 +34,6 @@ public abstract class Card {
             joinColumns = @JoinColumn(name = "card_id"),
             inverseJoinColumns = @JoinColumn(name = "card_set_id")
     )
+    @JsonIgnore // Ajouté ici aussi pour cohérence
     private Set<CardSet> cardSets = new HashSet<>();
 }

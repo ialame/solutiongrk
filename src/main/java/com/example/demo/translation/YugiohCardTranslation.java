@@ -11,22 +11,17 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class YugiohCardTranslation extends CardTranslation {
+
     public YugiohCardTranslation() {
     }
 
     public YugiohCardTranslation(Card card, Language language, String name, String description) {
-        super(card, language, null, null); // Ne pas passer name/description à super
-        this.card = card;
-        this.language = language;
-        this.name = name; // Forcer ici
-        this.description = description; // Forcer ici
+        super(card, language, name, description);
     }
 
     public YugiohCardTranslation(Card card, Language language, String name, String description, String flavorText) {
-        this(card, language, name, description);
+        super(card, language, name, description);
         this.setFlavorText(flavorText);
     }
-
-    @Column(name = "description", length = 1000)
-    private String description;
+    
 }

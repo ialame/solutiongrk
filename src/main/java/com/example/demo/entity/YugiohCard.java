@@ -1,6 +1,7 @@
 package com.example.demo.entity;
 
 import com.example.demo.translation.YugiohCardTranslation;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -12,7 +13,6 @@ import java.util.List;
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class YugiohCard extends Card {
-
     @Column(name = "attack")
     private Integer attack;
 
@@ -21,6 +21,10 @@ public class YugiohCard extends Card {
 
     @Column(name = "type")
     private String type;
+
+    @ManyToMany(mappedBy = "cards")
+    @JsonIgnore // Doit être présent ici
+    private List<YugiohSet> cardSets = new ArrayList<>();
 
     @OneToMany(mappedBy = "card", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<YugiohCardTranslation> translations = new ArrayList<>();

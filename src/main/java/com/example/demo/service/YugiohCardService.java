@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -106,5 +107,11 @@ public class YugiohCardService {
         } else {
             logger.debug("Traduction déjà existante et identique pour carte {} en {}", cardId, languageCode);
         }
+    }
+
+    @Transactional(readOnly = true)
+    public List<YugiohCard> findAllCards() {
+        logger.info("Récupération de toutes les cartes Yu-Gi-Oh");
+        return yugiohCardRepository.findAll();
     }
 }

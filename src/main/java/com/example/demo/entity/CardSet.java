@@ -1,19 +1,14 @@
 package com.example.demo.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
-
-import java.time.LocalDate;
+import lombok.Data;
 import java.util.*;
 
-@Setter
-@Getter
-@Entity
-@Table(name = "card_set")
-@Inheritance(strategy = InheritanceType.JOINED)
-public abstract class CardSet {
 
+@Entity
+@Data
+public class CardSet {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -21,18 +16,7 @@ public abstract class CardSet {
     @Column(name = "set_code")
     private String setCode;
 
-    @Column(name = "release_date")
-    private LocalDate releaseDate;
-
-    @Column(name = "total_cards")
-    private Integer totalCards;
-
-    @ManyToMany(mappedBy = "cardSets", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    private List<Card> cards = new ArrayList<>();
-
-    @ManyToOne
-    @JoinColumn(name = "serie_id")
-    private Serie serie;
-
-    public CardSet() {}
+    @ManyToMany(mappedBy = "cardSets")
+    @JsonIgnore
+    private Set<Card> cards = new HashSet<>();
 }
