@@ -19,6 +19,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -47,7 +48,22 @@ public class YugiohDataService {
         CARD_ID_TO_CID.put("37313348", "4137"); // Turtle Tiger
 
     }
-
+    private String findCidByEnglishName(String englishName) {
+        try {
+            String url = KONAMI_BASE_URL + "?ope=1&keyword=" + URLEncoder.encode(englishName, "UTF-8") + "&request_locale=en";
+            logger.info("Recherche du CID pour '{}' avec URL : {}", englishName, url);
+            Document doc = Jsoup.connect(url)
+                    .userAgent("Mozilla/5.0")
+                    .timeout(10000)
+                    .get();
+            String cid = doc.select("a.link_card").first().attr("href").split("cid=")[1].split("&")[0];
+            logger.info("CID trouvé pour '{}' : {}", englishName, cid);
+            return cid;
+        } catch (Exception e) {
+            logger.warn("Erreur lors de la recherche du CID pour '{}' : {}", englishName, e.getMessage());
+            return null;
+        }
+    }
     @Autowired
     private RestTemplate restTemplate;
 
@@ -135,7 +151,17 @@ public class YugiohDataService {
                 yugiohCardService.saveCardTranslation(cardIdInDb, "en", englishName);
 
                 logger.info("Tentative de récupération de la traduction française pour la carte ID {}", cardId);
-                String frenchName = getFrenchTranslation(cardId);
+                ///////////////////
+                String cid = CARD_ID_TO_CID.get(cardId);
+                if (cid == null) {
+                    cid = findCidByEnglishName(englishName);
+                    if (cid != null) {
+                        CARD_ID_TO_CID.put(cardId, cid);
+                    }
+                }
+                String frenchName = cid != null ? getFrenchTranslation(cardId) : null;
+                ///////////////////
+                //String frenchName = getFrenchTranslation(cardId);
                 if (frenchName != null) {
                     logger.info("Traduction française trouvée pour la carte ID {} : {}", cardId, frenchName);
                     yugiohCardService.saveCardTranslation(cardIdInDb, "fr", frenchName);

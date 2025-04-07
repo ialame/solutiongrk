@@ -98,8 +98,13 @@ public class YugiohCardService {
             YugiohCardTranslation savedTranslation = cardTranslationRepository.saveAndFlush(translation);
             logger.debug("Traduction sauvegardée pour carte {} en {} : {}", cardId, languageCode, name);
             logger.info("Vérification post-sauvegarde : ID de la traduction = {}", savedTranslation.getId());
+        } else if (!existingTranslation.getName().equals(name)) {
+            existingTranslation.setName(name);
+            existingTranslation.setDescription("Card: " + name);
+            cardTranslationRepository.saveAndFlush(existingTranslation);
+            logger.debug("Traduction mise à jour pour carte {} en {} : {}", cardId, languageCode, name);
         } else {
-            logger.debug("Traduction déjà existante pour carte {} en {} : {}", cardId, languageCode, existingTranslation.getName());
+            logger.debug("Traduction déjà existante et identique pour carte {} en {}", cardId, languageCode);
         }
     }
 }
