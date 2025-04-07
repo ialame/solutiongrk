@@ -30,18 +30,11 @@ public class PokemonSetService {
 
     @Transactional
     public PokemonSet saveSet(String setCode, int totalCards) {
-        Optional<PokemonSet> setOptional = pokemonSetRepository.findBySetCode(setCode);
-        PokemonSet pokemonSet;
-        if (setOptional.isEmpty()) {
-            pokemonSet = new PokemonSet();
-            pokemonSet.setSetCode(setCode);
-            pokemonSet.setTotalCards(totalCards);
-            pokemonSet = pokemonSetRepository.save(pokemonSet);
-            logger.info("Set Pokémon sauvegardé : {} avec {} cartes (ID: {})", setCode, totalCards, pokemonSet.getId());
-        } else {
-            pokemonSet = setOptional.get();
-            logger.debug("Set Pokémon {} déjà existant (ID: {})", setCode, pokemonSet.getId());
-        }
+        PokemonSet pokemonSet = new PokemonSet();
+        pokemonSet.setSetCode(setCode);
+        pokemonSet.setTotalCards(totalCards);
+        pokemonSet = pokemonSetRepository.save(pokemonSet);
+        logger.info("Set Pokémon sauvegardé : {} avec {} cartes (ID: {})", setCode, totalCards, pokemonSet.getId());
         return pokemonSet;
     }
 
@@ -60,14 +53,12 @@ public class PokemonSetService {
             language = languageRepository.save(language);
         }
 
-        PokemonSetTranslation existingTranslation = pokemonSetTranslationRepository.findByCardSetAndLanguage(pokemonSet, language);
-        if (existingTranslation == null) {
-            PokemonSetTranslation translation = new PokemonSetTranslation(pokemonSet, language, name);
-            pokemonSet.getTranslations().add(translation);
-            pokemonSetTranslationRepository.save(translation);
-            logger.debug("Traduction sauvegardée pour set {} en {} : {}", setId, languageCode, name);
-        } else {
-            logger.debug("Traduction déjà existante pour set {} en {}", setId, languageCode);
-        }
+        PokemonSetTranslation translation = new PokemonSetTranslation();
+        translation.setCardSet(pokemonSet);
+        translation.setLanguage(language);
+        translation.setName(name);
+        pokemonSetTranslationRepository.save(translation);
+        logger.debug("Traduction sauvegardée pour set {} en {} : {}", setId, languageCode, name);
+
     }
 }

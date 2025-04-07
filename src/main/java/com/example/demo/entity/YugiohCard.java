@@ -22,10 +22,6 @@ public class YugiohCard extends Card {
     @Column(name = "type")
     private String type;
 
-    @ManyToMany(mappedBy = "cards")
-    @JsonIgnore // Doit être présent ici
-    private List<YugiohSet> cardSets = new ArrayList<>();
-
     @OneToMany(mappedBy = "card", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<YugiohCardTranslation> translations = new ArrayList<>();
 }

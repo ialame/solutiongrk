@@ -1,11 +1,8 @@
 package com.example.demo.service;
 
-import com.example.demo.entity.YugiohSet;
+import com.example.demo.entity.*;
+import com.example.demo.repository.*;
 import com.example.demo.translation.YugiohSetTranslation;
-import com.example.demo.entity.Language;
-import com.example.demo.repository.YugiohSetRepository;
-import com.example.demo.repository.YugiohSetTranslationRepository;
-import com.example.demo.repository.LanguageRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,19 +27,10 @@ public class YugiohSetService {
 
     @Transactional
     public YugiohSet saveSet(String setCode, int totalCards) {
-        Optional<YugiohSet> setOptional = yugiohSetRepository.findBySetCode(setCode);
-        YugiohSet yugiohSet;
-        if (setOptional.isEmpty()) {
-            yugiohSet = new YugiohSet();
-            yugiohSet.setSetCode(setCode);
-            yugiohSet.setTotalCards(totalCards);
-            yugiohSet = yugiohSetRepository.save(yugiohSet);
-            logger.info("Set Yu-Gi-Oh sauvegardé : {} avec {} cartes (ID: {})", setCode, totalCards, yugiohSet.getId());
-        } else {
-            yugiohSet = setOptional.get();
-            logger.debug("Set Yu-Gi-Oh {} déjà existant (ID: {})", setCode, yugiohSet.getId());
-        }
-        return yugiohSet;
+        YugiohSet yugiohSet = new YugiohSet();
+        yugiohSet.setSetCode(setCode);
+        yugiohSet.setTotalCards(totalCards);
+        return yugiohSetRepository.save(yugiohSet);
     }
 
     @Transactional
@@ -60,14 +48,11 @@ public class YugiohSetService {
             language = languageRepository.save(language);
         }
 
-        YugiohSetTranslation existingTranslation = yugiohSetTranslationRepository.findByCardSetAndLanguage(yugiohSet, language);
-        if (existingTranslation == null) {
-            YugiohSetTranslation translation = new YugiohSetTranslation(yugiohSet, language, name);
-            yugiohSet.getTranslations().add(translation);
-            yugiohSetTranslationRepository.save(translation);
-            logger.debug("Traduction sauvegardée pour set {} en {} : {}", setId, languageCode, name);
-        } else {
-            logger.debug("Traduction déjà existante pour set {} en {}", setId, languageCode);
-        }
+        YugiohSetTranslation translation = new YugiohSetTranslation();
+        translation.setCardSet(yugiohSet);
+        translation.setLanguage(language);
+        translation.setName(name);
+        yugiohSetTranslationRepository.save(translation);
+        logger.debug("Traduction sauvegardée pour le set {} en {} : {}", setId, languageCode, name);
     }
 }

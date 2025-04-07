@@ -1,10 +1,10 @@
 package com.example.demo.repository;
 
-import com.example.demo.entity.PokemonSet;
 import com.example.demo.translation.PokemonSetTranslation;
-import com.example.demo.entity.Language;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
+
 public interface PokemonSetTranslationRepository extends JpaRepository<PokemonSetTranslation, Long> {
-    PokemonSetTranslation findByCardSetAndLanguage(PokemonSet cardSet, Language language);
+    List<PokemonSetTranslation> findByCardSetId(Long cardSetId);
 }
