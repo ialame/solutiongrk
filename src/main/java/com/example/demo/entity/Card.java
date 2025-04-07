@@ -3,17 +3,19 @@ package com.example.demo.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Entity
+@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 @Data
+@EqualsAndHashCode(callSuper = false, exclude = {"cardSets"})
 public abstract class Card {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "card_seq")
+    @SequenceGenerator(name = "card_seq", sequenceName = "card_sequence", allocationSize = 1)
     private Long id;
 
     @Column(name = "card_number")
@@ -34,6 +36,6 @@ public abstract class Card {
             joinColumns = @JoinColumn(name = "card_id"),
             inverseJoinColumns = @JoinColumn(name = "card_set_id")
     )
-    @JsonIgnore // Ajouté ici aussi pour cohérence
+    @JsonIgnore
     private Set<CardSet> cardSets = new HashSet<>();
 }

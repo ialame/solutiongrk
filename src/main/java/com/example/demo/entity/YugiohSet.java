@@ -1,17 +1,14 @@
 package com.example.demo.entity;
 
-import com.example.demo.translation.YugiohSetTranslation;
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Entity
+@Table(name = "yugioh_set")
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class YugiohSet extends CardSet {
-    @OneToMany(mappedBy = "cardSet", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<YugiohSetTranslation> translations = new ArrayList<>();
+    // Champs spécifiques si besoin
 }

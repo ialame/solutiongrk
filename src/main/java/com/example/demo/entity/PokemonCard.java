@@ -9,12 +9,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@Table(name = "pokemon_card")
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class PokemonCard extends Card {
-
     @Column(name = "hp")
     private Integer hp;
+
+    @Column(name = "type")
+    private String type;
 
     @Column(name = "energy_type")
     private String energyType;

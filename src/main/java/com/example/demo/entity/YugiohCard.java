@@ -1,7 +1,6 @@
 package com.example.demo.entity;
 
 import com.example.demo.translation.YugiohCardTranslation;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -10,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@Table(name = "yugioh_card")
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class YugiohCard extends Card {
