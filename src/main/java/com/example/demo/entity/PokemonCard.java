@@ -25,6 +25,8 @@ public class PokemonCard extends Card {
     @Column(name = "weakness")
     private String weakness;
 
+    private String imagePath; // Ajout du champ imagePath
+
     @OneToMany(mappedBy = "card", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PokemonCardTranslation> translations = new ArrayList<>();
 }

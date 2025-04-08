@@ -17,6 +17,7 @@ interface Card {
   rarity: string | null;
   attack: number | null;
   defense: number | null;
+  hp: number | null;
   translations: CardTranslation[];
 }
 
@@ -35,7 +36,15 @@ defineProps<{
         <li v-for="card in cards" :key="card.id">
           <img :src="card.imagePath" alt="Card Image" style="max-width: 100px;" v-if="card.imagePath" />
           {{ card.translations.find(t => t.language.code === 'en')?.name || 'Nom non défini' }}
-          (ATK: {{ card.attack ?? 'N/A' }}, DEF: {{ card.defense ?? 'N/A' }})
+          <span v-if="card.gameType === 'Yugioh'">
+                        (ATK: {{ card.attack ?? 'N/A' }}, DEF: {{ card.defense ?? 'N/A' }})
+                    </span>
+          <span v-else-if="card.gameType === 'Pokemon'">
+                        (HP: {{ card.hp ?? 'N/A' }})
+                    </span>
+          <span v-else>
+                        (Type inconnu)
+                    </span>
         </li>
       </ul>
     </div>

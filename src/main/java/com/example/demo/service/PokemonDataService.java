@@ -1,31 +1,28 @@
 package com.example.demo.service;
 
 import com.example.demo.entity.PokemonSet;
-import com.example.demo.entity.Serie;
-import com.example.demo.image.ImageDownloader;
 import com.example.demo.repository.PokemonSetRepository;
-import com.example.demo.translation.PokemonCardTranslation;
-import com.example.demo.translation.PokemonSetTranslation;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Optional;
 
 @Service
 public class PokemonDataService {
 
     private static final Logger logger = LoggerFactory.getLogger(PokemonDataService.class);
-    private static final String POKEMON_TCG_API_URL = "https://api.pokemontcg.io/v2";
-    private static final String TCGDEX_API_URL = "https://api.tcgdex.net/v2";
-    private static final String IMAGE_DIRECTORY = "images/Pokemon";
 
     @Autowired
     private RestTemplate restTemplate;
@@ -34,121 +31,94 @@ public class PokemonDataService {
     private ObjectMapper objectMapper;
 
     @Autowired
-    private ImageDownloader imageDownloader;
-
-    @Autowired
     private PokemonCardService pokemonCardService;
 
     @Autowired
     private PokemonSetService pokemonSetService;
 
     @Autowired
-    private SerieService serieService;
-
-    @Autowired
     private PokemonSetRepository pokemonSetRepository;
 
+    @Transactional
     public void processPokemonSet(String setCode) {
-        // Étape 1 : Récupérer les données depuis l'API Pokémon TCG
-        String tcgUrl = POKEMON_TCG_API_URL + "/cards?q=set.id:" + setCode;
-        String tcgResponse = restTemplate.getForObject(tcgUrl, String.class);
+        logger.info("Début du traitement de la série Pokémon : {}", setCode);
+
+        // Vérifier si le set existe déjà
+        Optional<PokemonSet> existingSetOpt = pokemonSetRepository.findBySetCode(setCode);
+        if (existingSetOpt.isPresent()) {
+            logger.info("La série Pokémon {} existe déjà, pas de traitement nécessaire", setCode);
+            return;
+        }
+
+        // Appeler l'API Pokémon TCG
+        String url = "https://api.pokemontcg.io/v2/cards?q=set.id:" + setCode;
+        logger.info("URL construite avant envoi : {}", url);
 
         try {
-            JsonNode root = objectMapper.readTree(tcgResponse);
+            String response = restTemplate.getForObject(url, String.class);
+            if (response == null) {
+                logger.error("Aucune réponse de l'API pour la série Pokémon : {}", setCode);
+                return;
+            }
+
+            JsonNode root = objectMapper.readTree(response);
             JsonNode cards = root.path("data");
 
             // Sauvegarder le set
             int totalCards = cards.size();
-            PokemonSet pokemonSet = pokemonSetService.saveSet(setCode, totalCards);
+            Long setId = pokemonSetService.saveSet(setCode, totalCards).getId();
+            pokemonSetService.saveSetTranslation(setId, "en", setCode);
 
-            // Récupérer et associer la série
-            JsonNode setNode = cards.get(0).path("set");
-            String serieName = setNode.path("series").asText("Unknown Series");
-            Optional<Serie> serieOptional = serieService.findByNameAndGameType(serieName, "Pokemon");
-            Serie serie;
-            if (serieOptional.isEmpty()) {
-                serie = serieService.saveSerie("Pokemon", serieName);
-            } else {
-                serie = serieOptional.get();
-            }
-            pokemonSet.setSerie(serie);
-            pokemonSetRepository.save(pokemonSet);
-
-            // Sauvegarder la traduction anglaise du set
-            String setNameEn = setNode.path("name").asText(setCode);
-            pokemonSetService.saveSetTranslation(pokemonSet.getId(), "en", setNameEn);
-
-            // Étape 2 : Récupérer les traductions non-EN depuis TCGdex pour le set
-            String tcgdexSetUrl = TCGDEX_API_URL + "/en/sets/" + setCode;
-            String tcgdexSetResponse = restTemplate.getForObject(tcgdexSetUrl, String.class);
-            if (tcgdexSetResponse != null) {
-                JsonNode tcgdexSetNode = objectMapper.readTree(tcgdexSetResponse);
-                String setNameFr = fetchTranslationFromTcgdex(setCode, "fr", "sets");
-                if (setNameFr != null) {
-                    pokemonSetService.saveSetTranslation(pokemonSet.getId(), "fr", setNameFr);
-                }
-            }
-
-            // Traiter les cartes
+            // Traiter chaque carte
             for (JsonNode cardNode : cards) {
                 String cardId = cardNode.path("id").asText();
-                //String hp = cardNode.path("hp").asText("Unknown");
-                Integer hpValue;
-                String hpText = cardNode.path("hp").asText("Unknown");
-                if ("Unknown".equals(hpText) || hpText.isEmpty()) {
-                    hpValue = null; // Ou une valeur par défaut, ex. 0
-                } else {
-                    try {
-                        hpValue = Integer.parseInt(hpText.replace(" HP", "").trim()); // Gère "70 HP" ou "60"
-                    } catch (NumberFormatException e) {
-                        hpValue = null; // Ou loggez l'erreur et définissez une valeur par défaut
-                        logger.warn("Impossible de convertir HP en entier : {}", hpText);
-                    }
-                }
-
-
-                String energyType = cardNode.path("types").get(0) != null ? cardNode.path("types").get(0).asText() : "Unknown";
-                String weakness = cardNode.path("weaknesses").get(0) != null ? cardNode.path("weaknesses").get(0).path("type").asText() : "Unknown";
-
-                Long cardIdInDb = pokemonCardService.savePokemonCard(cardId, setCode, hpValue,null, energyType, weakness);
-
-                String imageUrl = cardNode.path("images").path("large").asText();
-                imageDownloader.downloadImage(imageUrl, cardId, IMAGE_DIRECTORY);
-
-                // Traduction anglaise depuis Pokémon TCG
                 String nameEn = cardNode.path("name").asText();
-                String flavorTextEn = cardNode.path("flavorText").asText("No flavor text available");
-                pokemonCardService.saveCardTranslation(cardIdInDb, "en", nameEn, flavorTextEn);
+                String flavorTextEn = cardNode.path("flavorText").asText("");
+                String imageUrl = cardNode.path("images").path("small").asText();
+                Integer hp = cardNode.path("hp").asText("Unknown").equals("Unknown") ? null : Integer.parseInt(cardNode.path("hp").asText());
+                String type = cardNode.path("supertype").asText();
+                String energyType = cardNode.path("types").isArray() ? cardNode.path("types").get(0).asText() : "";
+                String weakness = cardNode.path("weaknesses").isArray() ? cardNode.path("weaknesses").get(0).path("type").asText() : "";
 
-                // Traduction française (ou autre) depuis TCGdex
-                String tcgdexCardUrl = TCGDEX_API_URL + "/en/cards/" + cardId;
-                String tcgdexCardResponse = restTemplate.getForObject(tcgdexCardUrl, String.class);
-                if (tcgdexCardResponse != null) {
-                    JsonNode tcgdexCardNode = objectMapper.readTree(tcgdexCardResponse);
-                    String nameFr = fetchTranslationFromTcgdex(cardId, "fr", "cards");
-                    if (nameFr != null) {
-                        String flavorTextFr = tcgdexCardNode.path("flavorText").asText("No flavor text available");
-                        pokemonCardService.saveCardTranslation(cardIdInDb, "fr", nameFr, flavorTextFr);
-                    }
-                }
+                // Télécharger l'image localement
+                String imagePath = downloadImage(imageUrl, cardId);
+
+                // Ajouter imagePath à l'appel
+                Long cardIdInDb = pokemonCardService.savePokemonCard(cardId, "Pokemon", hp, type, energyType, weakness, imagePath);
+                pokemonCardService.saveCardTranslation(cardIdInDb, "en", nameEn, flavorTextEn);
+                logger.info("Carte Pokémon sauvegardée : {} dans le set {}", cardId, setCode);
             }
-        } catch (IOException e) {
-            logger.error("Erreur lors du traitement du set Pokémon {} : {}", setCode, e.getMessage());
+        } catch (Exception e) {
+            logger.error("Erreur lors du traitement de la série Pokémon {} : {}", setCode, e.getMessage());
         }
     }
 
-    // Méthode utilitaire pour récupérer les traductions depuis TCGdex
-    private String fetchTranslationFromTcgdex(String id, String languageCode, String type) {
+    private String downloadImage(String imageUrl, String cardId) {
         try {
-            String url = TCGDEX_API_URL + "/" + languageCode + "/" + type + "/" + id;
-            String response = restTemplate.getForObject(url, String.class);
-            if (response != null) {
-                JsonNode node = objectMapper.readTree(response);
-                return node.path("name").asText(null);
+            logger.debug("Tentative de téléchargement de l'image pour la carte {} depuis l'URL : {}", cardId, imageUrl);
+            // Définir le chemin local pour stocker l'image
+            String localPath = "target/classes/static/images/Pokemon/" + cardId + ".jpg";
+            Path path = Paths.get(localPath);
+            Files.createDirectories(path.getParent()); // Créer les dossiers si nécessaire
+            logger.debug("Dossier créé pour l'image : {}", path.getParent());
+
+            // Télécharger l'image
+            URL url = new URL(imageUrl);
+            try (InputStream in = url.openStream();
+                 FileOutputStream out = new FileOutputStream(localPath)) {
+                byte[] buffer = new byte[1024];
+                int bytesRead;
+                while ((bytesRead = in.read(buffer)) != -1) {
+                    out.write(buffer, 0, bytesRead);
+                }
             }
-        } catch (IOException e) {
-            logger.warn("Erreur lors de la récupération de la traduction {} pour {} {} : {}", languageCode, type, id, e.getMessage());
+            logger.debug("Image téléchargée avec succès pour la carte {} : {}", cardId, localPath);
+
+            // Retourner le chemin relatif pour le frontend
+            return "/images/Pokemon/" + cardId + ".jpg";
+        } catch (Exception e) {
+            logger.error("Erreur lors du téléchargement de l'image pour la carte {} : {}", cardId, e.getMessage());
+            return imageUrl; // Retourner l'URL distante en cas d'échec
         }
-        return null;
     }
 }

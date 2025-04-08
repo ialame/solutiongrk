@@ -1,14 +1,13 @@
 package com.example.demo.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 @Entity
-@Table(name = "yugioh_set")
+@Table(name = "yugioh_set", uniqueConstraints = @UniqueConstraint(columnNames = "set_code"))
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class YugiohSet extends CardSet {
-    // Champs spécifiques si besoin
+    // Pas de champs supplémentaires nécessaires
 }

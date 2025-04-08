@@ -4,8 +4,6 @@ import lombok.Data;
 
 @Data
 public class SetTranslationDTO {
-    private String language;
     private String name;
-
-    // Getters et Setters
+    private LanguageDTO language; // Changement de String à LanguageDTO
 }

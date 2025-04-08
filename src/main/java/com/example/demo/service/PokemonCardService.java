@@ -27,7 +27,7 @@ public class PokemonCardService {
     private LanguageRepository languageRepository;
 
     @Transactional
-    public Long savePokemonCard(String cardNumber, String gameType, Integer hp, String type, String energyType, String weakness) {
+    public Long savePokemonCard(String cardNumber, String gameType, Integer hp, String type, String energyType, String weakness, String imagePath) {
         PokemonCard card = new PokemonCard();
         card.setCardNumber(cardNumber);
         card.setGameType(gameType);
@@ -35,6 +35,7 @@ public class PokemonCardService {
         card.setType(type);
         card.setEnergyType(energyType);
         card.setWeakness(weakness);
+        card.setImagePath(imagePath); // Ajout de l'imagePath
         PokemonCard savedCard = pokemonCardRepository.save(card);
         return savedCard.getId();
     }
